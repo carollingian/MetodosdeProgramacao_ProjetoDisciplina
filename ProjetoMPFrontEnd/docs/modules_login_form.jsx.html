@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: modules/login/form.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: modules/login/form.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState } from 'react';
+import axios from 'axios';
+import logo from '../../assets/atlax.png';
+import ann from '../../assets/ann.png';
+
+const serverUrl = 'http://localhost:8000/';
+
+/**
+ * Componente Login.
+ * Um componente que exibe um formulário de login.
+ * @returns {JSX.Element} Retorna o componente Login.
+ */
+
+export default function Login() {
+  const [username, setUsername] = useState('');
+  const [senha, setSenha] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [senhaError, setSenhaError] = useState('');
+
+  /**
+  * Manipula a alteração do campo de entrada "username".
+  * @param {Event} event - O evento de alteração do campo "username".
+  */
+
+  const handleUsernameChange = (event) => {
+    setUsername(event.target.value);
+  };
+
+  /**
+  * Manipula a alteração do campo de entrada "senha".
+  * @param {Event} event - O evento de alteração do campo "senha".
+  */
+
+  const handleSenhaChange = (event) => {
+    setSenha(event.target.value);
+  };
+
+  /**
+   * Valida os campos de entrada do formulário.
+   * @returns {boolean} Retorna `true` se os campos forem válidos, caso contrário, retorna `false`.
+   */
+
+  const validateInputs = () => {
+    let hasError = false;
+
+    if (!username) {
+      setUsernameError('O campo usuário é obrigatório.');
+      hasError = true;
+    } else if (!/^[a-zA-Z]+$/.test(username)) {
+      setUsernameError('O campo usuário só pode conter letras.');
+      hasError = true;
+    } else {
+      setUsernameError('');
+    }
+
+    if (!senha) {
+      setSenhaError('O campo senha é obrigatório.');
+      hasError = true;
+    } else if (!/^\d+$/.test(senha)) {
+      setSenhaError('A senha deve conter apenas números.');
+      hasError = true;
+    } else {
+      setSenhaError('');
+    }
+
+    return !hasError;
+  };
+
+  /**
+   * Efetua o login do usuário.
+   */
+
+  const loginUser = async () => {
+    try {
+      const passwordInt = parseInt(senha, 10);
+
+      const response = await axios.post(`${serverUrl}Login/`, {
+        username,
+        senha: passwordInt,
+      });
+
+      if (response.status === 200) {
+        localStorage.setItem('responseData', JSON.stringify(response.data));
+        localStorage.setItem('username', username);
+        window.location.reload(); // Recarrega a página para atualizar o estado de autenticação
+      } else if (response.status === 403) {
+        setSenhaError('Senha inválida');
+      } else if (response.status === 422) {
+        const errorMessage = response.data?.detail?.message || 'Usuário não encontrado';
+        setUsernameError(errorMessage);
+      } else {
+        setUsernameError('Ocorreu um erro');
+      }
+      if (response.status === 200) {
+        localStorage.setItem('responseData', JSON.stringify(response.data));
+        const userData = {
+          username,
+          senha: passwordInt,
+        };
+        localStorage.setItem('userData', JSON.stringify(userData));
+        window.location.reload(); // Recarrega a página para atualizar o estado de autenticação
+      }
+    } catch (error) {
+      if (error.response &amp;&amp; error.response.data &amp;&amp; error.response.data.detail) {
+        setUsernameError(error.response.data.detail.message || 'Ocorreu um erro');
+      } else {
+        setUsernameError('Ocorreu um erro');
+      }
+    }
+  };
+
+  /**
+   * Manipula o envio do formulário.
+   * @param {Event} event - O evento de envio do formulário.
+   */
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!validateInputs()) {
+      return;
+    }
+
+    try {
+      await loginUser();
+    } catch (error) {
+      if (error.response &amp;&amp; error.response.data &amp;&amp; error.response.data.detail) {
+        const errorMessage = error.response.data.detail.message || 'Ocorreu um erro';
+        setSenhaError(errorMessage);
+      } else {
+        setUsernameError('Ocorreu um erro');
+      }
+    }
+  };
+
+  return (
+    &lt;div className="min-h-screen flex items-center justify-center bg-gray-800">
+      &lt;div className="pl-80 relative mt-16 h-auto lg:mt-1 flex items-center justify-center">
+        &lt;img
+          className="max-w-full max-h-full"
+          src={ann}
+          alt="App screenshot"
+          width={600}
+          height={1080}
+        />
+      &lt;/div>
+      &lt;div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        &lt;div className="sm:mx-auto sm:w-full sm:max-w-sm">
+          &lt;img className="mx-auto h-50 w-auto" src={logo} alt="Atlax Logo" />
+        &lt;/div>
+
+        &lt;div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          &lt;form className="space-y-6" onSubmit={handleSubmit}>
+            &lt;div>
+              &lt;label htmlFor="username" className="block text-sm font-medium leading-6 text-[#53a9f6]">
+                Usuário
+              &lt;/label>
+              &lt;div className="mt-2">
+                &lt;input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  required
+                  value={username}
+                  onChange={handleUsernameChange}
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              &lt;/div>
+              {usernameError &amp;&amp; &lt;p className="text-red-500 text-xs mt-1">{usernameError}&lt;/p>}
+            &lt;/div>
+
+            &lt;div>
+              &lt;div className="flex items-center justify-between">
+                &lt;label htmlFor="password" className="block text-sm font-medium leading-6 text-[#53a9f6]">
+                  Senha
+                &lt;/label>
+                &lt;div className="text-sm">
+                  &lt;a
+                    href="/senha"
+                    className="font-semibold text-indigo-600 hover:text-[#4e42ac] text-[#53a9f6]"
+                  >
+                    Deseja alterar sua senha?
+                  &lt;/a>
+                &lt;/div>
+              &lt;/div>
+              &lt;div className="mt-2">
+                &lt;input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={senha}
+                  onChange={handleSenhaChange}
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              &lt;/div>
+              {senhaError &amp;&amp; &lt;p className="text-red-500 text-xs mt-1">{senhaError}&lt;/p>}
+            &lt;/div>
+
+            &lt;div>
+              &lt;button
+                type="submit"
+                className="mt-20 flex w-full justify-center rounded-md bg-[#4e42ac] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Entrar
+              &lt;/button>
+              &lt;a
+                href="/cadastro"
+                type="link"
+                className="my-2 flex w-full justify-center rounded-md bg-[#53a9f6] px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Crie sua conta
+              &lt;/a>
+            &lt;/div>
+          &lt;/form>
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Navbar">Navbar</a></li><li><a href="global.html#ProtectedRoutes">ProtectedRoutes</a></li><li><a href="global.html#classNames">classNames</a></li><li><a href="global.html#navigation">navigation</a></li><li><a href="global.html#useAdmin">useAdmin</a></li><li><a href="global.html#useAuth">useAuth</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sat Jul 08 2023 00:02:35 GMT-0300 (Horário Padrão de Brasília)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: modules/main_page/navbar.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: modules/main_page/navbar.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import { Disclosure, Menu, Transition } from '@headlessui/react';
+import { XIcon, MenuIcon } from '@heroicons/react/solid';
+import { IoLogOutSharp, IoPersonSharp } from 'react-icons/io5';
+import { Link } from 'react-router-dom';
+import logo from '../../assets/atlax.png';
+
+/**
+ * Array de objetos de navegação.
+ * Cada objeto representa um item de navegação na barra de navegação.
+ * @type {Array&lt;{name: string, href: string, current: boolean}>}
+ */
+
+const navigation = [
+  { name: 'Meus matches', href: '/meus', current: true },
+  { name: 'Usuários disponíveis', href: '/usuarios', current: false },
+  { name: 'Grupos disponíveis', href: '/grupos', current: false },
+  { name: 'Chat', href: '/chat', current: true },
+];
+
+/**
+ * Função para combinar classes CSS.
+ * @param {...string} classes - As classes CSS a serem combinadas.
+ * @returns {string} Retorna a string de classes CSS combinadas.
+ */
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
+/**
+ * Hook useAdmin.
+ * Um hook personalizado que verifica se o usuário é um administrador.
+ * @returns {boolean} Retorna `true` se o usuário for um administrador, caso contrário, retorna `false`.
+ */
+const useAdmin = () => {
+  const responseData = JSON.parse(localStorage.getItem('responseData'));
+  return responseData &amp;&amp; responseData.admin === 1;
+};
+
+/**
+ * Componente Navbar.
+ * Um componente que exibe a barra de navegação.
+ * @returns {JSX.Element} Retorna o componente Navbar.
+ */
+function Navbar() {
+  /**
+   * Manipula o logout do usuário.
+   */
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
+
+  const isAdmin = useAdmin();
+
+  return (
+    &lt;Disclosure as="nav" className="bg-gray-800">
+      {({ open }) => (
+        &lt;>
+          &lt;div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+            &lt;div className="relative flex h-16 items-center justify-between">
+              &lt;div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
+                &lt;Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                  &lt;span className="sr-only">Abrir menu principal&lt;/span>
+                  {open ? (
+                    &lt;XIcon className="block h-6 w-6" aria-hidden="true" />
+                  ) : (
+                    &lt;MenuIcon className="block h-6 w-6" aria-hidden="true" />
+                  )}
+                &lt;/Disclosure.Button>
+              &lt;/div>
+              &lt;div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+                &lt;div className="flex flex-shrink-0 items-center">
+                  &lt;Link to="/">
+                    &lt;img
+                      className="block h-8 w-auto lg:hidden"
+                      src={logo}
+                      alt="Atlax"
+                    />
+                    &lt;img
+                      className="hidden h-8 w-auto lg:block"
+                      src={logo}
+                      alt="Atlax"
+                    />
+                  &lt;/Link>
+                &lt;/div>
+                &lt;div className="hidden sm:ml-6 sm:block">
+                  &lt;div className="flex space-x-4">
+                    {navigation.map((item) => (
+                      &lt;a
+                        key={item.name}
+                        href={item.href}
+                        className={classNames(
+                          item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                          'rounded-md px-3 py-2 text-sm font-medium',
+                        )}
+                        aria-current={item.current ? 'page' : undefined}
+                      >
+                        {item.name}
+                      &lt;/a>
+                    ))}
+                  &lt;/div>
+                &lt;/div>
+              &lt;/div>
+              &lt;div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                &lt;Menu as="div" className="relative ml-3">
+                  &lt;div>
+                    &lt;Menu.Button className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                      &lt;span className="sr-only">Abra o menu de usuário&lt;/span>
+                      &lt;IoPersonSharp className="w-6 h-6" />
+                    &lt;/Menu.Button>
+                  &lt;/div>
+                  &lt;Transition
+                    as={React.Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    &lt;Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      &lt;Menu.Item>
+                        {({ active }) => (
+                          &lt;a
+                            href="/Perfil"
+                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                          >
+                            Seu perfil
+                          &lt;/a>
+                        )}
+                      &lt;/Menu.Item>
+                      {isAdmin &amp;&amp; (
+                        &lt;Menu.Item>
+                          {({ active }) => (
+                            &lt;a
+                              href="/admin"
+                              className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                            >
+                              Configurações
+                            &lt;/a>
+                          )}
+                        &lt;/Menu.Item>
+                      )}
+                      &lt;Menu.Item>
+                        {({ active }) => (
+                          &lt;a
+                            href="/"
+                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                          >
+                            Preferências
+                          &lt;/a>
+                        )}
+                      &lt;/Menu.Item>
+                    &lt;/Menu.Items>
+                  &lt;/Transition>
+                &lt;/Menu>
+
+                &lt;button
+                  type="button"
+                  className="text-gray-400 p-2 hover:text-white focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                  onClick={handleLogout}
+                >
+                  &lt;span className="sr-only">Sair&lt;/span>
+                  &lt;IoLogOutSharp className="h-6 w-6" aria-hidden="true" />
+                &lt;/button>
+              &lt;/div>
+            &lt;/div>
+          &lt;/div>
+
+          &lt;Disclosure.Panel className="sm:hidden">
+            &lt;div className="space-y-1 px-2 pb-3 pt-2">
+              {navigation.map((item) => (
+                &lt;a
+                  key={item.name}
+                  href={item.href}
+                  className={classNames(
+                    item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                    'block rounded-md px-3 py-2 text-base font-medium',
+                  )}
+                  aria-current={item.current ? 'page' : undefined}
+                >
+                  {item.name}
+                &lt;/a>
+              ))}
+            &lt;/div>
+          &lt;/Disclosure.Panel>
+        &lt;/>
+      )}
+    &lt;/Disclosure>
+  );
+}
+
+export default Navbar;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Navbar">Navbar</a></li><li><a href="global.html#ProtectedRoutes">ProtectedRoutes</a></li><li><a href="global.html#classNames">classNames</a></li><li><a href="global.html#navigation">navigation</a></li><li><a href="global.html#useAdmin">useAdmin</a></li><li><a href="global.html#useAuth">useAuth</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sat Jul 08 2023 00:02:35 GMT-0300 (Horário Padrão de Brasília)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
