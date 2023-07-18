@@ -16,3 +16,7 @@ Os usuários podem se comunicar de forma privativa pelo site diretamente ou em g
 O administrador faz todas as tarefas relacionada com a administração do site. Ele escolhe o que pode usado como preferência (ex. filmes, livros, etc).
 
 Deve ser gerado um relatório para o administrador dizendo quantas pessoas usaram o sistema, quantos grupos, qual o tamanho, etc."
+
+
+# Especificações
+Trata-se de um Site subdividido em Back-end e Front-end, com uso do Firebase como banco de dados.
